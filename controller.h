@@ -4,6 +4,8 @@
 #include "drawingarea.h"
 #include "point.h"
 #include <QObject>
+#include "shape.h"
+#include <vector>
 
 class Controller : public QObject
 {
@@ -11,11 +13,15 @@ class Controller : public QObject
 public:
     static Controller* instance();
     inline Point getViewer(){return _viewer;}
+    std::vector<Point>* getPoints();
 private:
+    std::vector<Point> _points;
     static Controller* _self;
     Controller();
     MainWindow _mainWindow;
     Point _viewer;
+    Shape* _shape;
+
 signals:
 
 public slots:

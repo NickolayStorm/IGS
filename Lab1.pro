@@ -18,13 +18,17 @@ SOURCES += main.cpp\
     drawing.cpp \
     transforms.cpp \
     point.cpp \
-    controller.cpp
+    controller.cpp \
+    shape.cpp \
+    tor.cpp
 
 HEADERS  += mainwindow.h \
     drawingarea.h \
     drawing.h \
     transforms.h \
     point.h \
-    controller.h
+    controller.h \
+    shape.h \
+    tor.h
 
 FORMS    += mainwindow.ui

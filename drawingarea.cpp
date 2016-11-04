@@ -63,4 +63,10 @@ void DrawingArea::paintEvent(QPaintEvent*){
     Drawing().drawAxe(paint, qstartY, qendY, "Y");
 //    qDebug() << qstartZ << " " << qendZ;
 
+    auto *points = Controller::instance()->getPoints();
+    for(auto& p : *points){
+        auto qp = Transforms::transform(p, viewer, center);
+        Drawing().drawPoint(paint, qp);
+    }
+
 }
