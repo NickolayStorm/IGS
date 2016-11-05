@@ -6,6 +6,8 @@
 #include <QObject>
 #include "shape.h"
 #include <vector>
+#include "polygon.h"
+
 
 class Controller : public QObject
 {
@@ -13,12 +15,17 @@ class Controller : public QObject
 public:
     static Controller* instance();
     inline Point getViewer(){return _viewer;}
-    std::vector<Point>* getPoints();
+//    std::vector<Point>* getPoints();
+    std::vector<Polygon>* getPolygons();
 private:
     std::vector<Point> _points;
+    std::vector<Polygon> _plgns;
+    void refreshFigures();
+    void setShape(){}
     static Controller* _self;
     Controller();
     MainWindow _mainWindow;
+    QSize _areaSize;
     Point _viewer;
     Shape* _shape;
 

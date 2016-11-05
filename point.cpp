@@ -1,4 +1,9 @@
 #include "point.h"
+Point::Point(){
+    _x = 0;
+    _y = 0;
+    _z = 0;
+}
 
 Point::Point(int x, int y, int z) : _x(x), _y(y), _z(z)
 {

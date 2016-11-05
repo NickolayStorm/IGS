@@ -11,6 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = Lab1
 TEMPLATE = app
 
+CONFIG += C++14
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -20,7 +21,8 @@ SOURCES += main.cpp\
     point.cpp \
     controller.cpp \
     shape.cpp \
-    tor.cpp
+    tor.cpp \
+    polygon.cpp
 
 HEADERS  += mainwindow.h \
     drawingarea.h \
@@ -29,6 +31,7 @@ HEADERS  += mainwindow.h \
     point.h \
     controller.h \
     shape.h \
-    tor.h
+    tor.h \
+    polygon.h
 
 FORMS    += mainwindow.ui

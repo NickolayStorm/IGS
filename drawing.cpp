@@ -1,7 +1,7 @@
 #include "drawing.h"
 #include <QPen>
 //Drawing* Drawing::_self = nullptr;
-
+//Controller* Controller::_self = nullptr;
 Drawing::Drawing()
 {
 
@@ -10,6 +10,8 @@ Drawing::Drawing()
 //Drawing* Drawing::instance(){
 //    if(Drawing::_self == nullptr)
 //        Drawing::_self = new Drawing();
+//    return Drawing::_self;
+
 //}
 
 void Drawing::drawPoint(QPainter& paint, QPoint& point){
@@ -29,4 +31,8 @@ void Drawing::setColorParams(QPainter &paint, ColorOption opts){
         pen.setColor(Qt::black);
     }
     paint.setPen(pen);
+}
+
+void Drawing::drawPloygon(QPainter &paint, QPoint *points, int size){
+    paint.drawPolygon(points, size);
 }

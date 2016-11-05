@@ -11,6 +11,7 @@ private:
     int _y;
     int _z;
 public:
+    Point();
     Point(int x, int y, int z);
     Point(matrix<int> m);
     inline int getX(){return _x;}
