@@ -17,64 +17,24 @@
    <widget class="QWidget" name="verticalLayoutWidget">
     <property name="geometry">
      <rect>
-      <x>510</x>
+      <x>460</x>
       <y>50</y>
-      <width>221</width>
-      <height>221</height>
+      <width>271</width>
+      <height>229</height>
      </rect>
     </property>
     <layout class="QFormLayout" name="formLayout">
-     <item row="6" column="1">
-      <widget class="QSlider" name="sliderViewerZ">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>X</string>
        </property>
-       <property name="maximumSize">
-        <size>
-         <width>250</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="maximum">
-        <number>100</number>
-       </property>
-       <property name="value">
-        <number>20</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>
-     <item row="5" column="1">
-      <widget class="QSlider" name="sliderViewerY">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>250</width>
-         <height>16777215</height>
-        </size>
-       </property>
-       <property name="maximum">
-        <number>100</number>
-       </property>
-       <property name="value">
-        <number>20</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1">
+     <item row="1" column="1">
       <widget class="QSlider" name="sliderViewerX">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
@@ -88,8 +48,87 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="minimum">
+        <number>-70</number>
+       </property>
        <property name="maximum">
-        <number>100</number>
+        <number>70</number>
+       </property>
+       <property name="value">
+        <number>20</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Y</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QSlider" name="sliderViewerY">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>250</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="minimum">
+        <number>-70</number>
+       </property>
+       <property name="maximum">
+        <number>70</number>
+       </property>
+       <property name="value">
+        <number>20</number>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Z</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1">
+      <widget class="QSlider" name="sliderViewerZ">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>250</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="minimum">
+        <number>-70</number>
+       </property>
+       <property name="maximum">
+        <number>70</number>
        </property>
        <property name="value">
         <number>20</number>
@@ -100,116 +139,88 @@
       </widget>
      </item>
      <item row="6" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Z</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="0">
-      <widget class="QLabel" name="label_2">
-       <property name="text">
-        <string>Y</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>X</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1">
-      <widget class="QSlider" name="sliderPointZ">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
+      <widget class="QWidget" name="insideColor" native="true">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
-       <property name="maximumSize">
+       <property name="minimumSize">
         <size>
-         <width>250</width>
-         <height>16777215</height>
+         <width>25</width>
+         <height>23</height>
         </size>
        </property>
-       <property name="maximum">
-        <number>100</number>
-       </property>
-       <property name="value">
-        <number>20</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+       <property name="maximumSize">
+        <size>
+         <width>25</width>
+         <height>23</height>
+        </size>
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
-      <widget class="QSlider" name="sliderPointY">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="6" column="1">
+      <widget class="QPushButton" name="insideColorButton">
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>0</height>
+        </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>250</width>
+         <width>150</width>
          <height>16777215</height>
         </size>
        </property>
-       <property name="maximum">
-        <number>100</number>
-       </property>
-       <property name="value">
-        <number>20</number>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+       <property name="text">
+        <string>Choose inside color</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QSlider" name="sliderPointX">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="7" column="0">
+      <widget class="QWidget" name="outsideColor" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>25</width>
+         <height>23</height>
+        </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>250</width>
+         <width>25</width>
+         <height>23</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1">
+      <widget class="QPushButton" name="outsideColorButton">
+       <property name="minimumSize">
+        <size>
+         <width>150</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>150</width>
          <height>16777215</height>
         </size>
        </property>
-       <property name="maximum">
-        <number>100</number>
+       <property name="text">
+        <string>Choose outside color</string>
        </property>
-       <property name="value">
-        <number>20</number>
+      </widget>
+     </item>
+     <item row="5" column="1">
+      <widget class="QCheckBox" name="isPainted">
+       <property name="text">
+        <string>Painted</string>
        </property>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+       <property name="checked">
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -218,10 +229,10 @@
    <widget class="DrawingArea" name="drawingArea" native="true">
     <property name="geometry">
      <rect>
-      <x>19</x>
-      <y>29</y>
-      <width>481</width>
-      <height>401</height>
+      <x>10</x>
+      <y>10</y>
+      <width>441</width>
+      <height>381</height>
      </rect>
     </property>
    </widget>

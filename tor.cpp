@@ -15,3 +15,7 @@ void Tor::func(){
     y = (b * cos(v) + a) * sin(u);
     z = b * sin(v);
 }
+
+Tor::~Tor(){
+
+}

@@ -4,19 +4,12 @@
 #include "point.h"
 #include "controller.h"
 #include <QDebug>
-#define AXIS_HALF_LEN 100
+#define AXIS_HALF_LEN 150
 DrawingArea::DrawingArea(QWidget *parent) : QWidget(parent)
 {
     this->show();
 }
 void DrawingArea::paintEvent(QPaintEvent*){
-
-    Point viewer = Controller::instance()->getViewer();
-
-    qDebug() << "viewer: ("
-             << viewer.getX() << " "
-             << viewer.getY() << " "
-             << viewer.getZ() << endl;
 
     QPainter paint(this);
     Drawing().setColorParams(paint, Drawing::ColorOption::BlackPalette);
@@ -34,7 +27,6 @@ void DrawingArea::paintEvent(QPaintEvent*){
     Drawing().drawAxe(paint, qstartX, qendX, "X");
 
     // Z axe
-    qDebug() << "### Z AXE ###";
     Point startZ(0, 0, AXIS_HALF_LEN);
     Point endZ(0, 0, -AXIS_HALF_LEN);
 
@@ -58,11 +50,17 @@ void DrawingArea::paintEvent(QPaintEvent*){
         return transforms.transform(p);
     };
 
-    for(auto& p : *plgns){
-        auto points = p.pointsToQPoint(mapping);
-        Drawing().drawPloygon(paint, points.get(), p.cornerCount());
-//        auto qp = transforms.transform(p);
-//        Drawing().drawPoint(paint, qp);
+    if(Controller::instance()->isPainted()){
+        for(auto& p : *plgns){
+            auto points = p.pointsToQPoint(mapping);
+            auto color = Controller::instance()->getPolygonColor(p);
+            Drawing().drawPolygon(paint, points.get(), p.cornerCount(), color);
+        }
+    }else{
+        for(auto& p : *plgns){
+            auto points = p.pointsToQPoint(mapping);
+            Drawing().drawPolygon(paint, points.get(), p.cornerCount());
+        }
     }
 
 }

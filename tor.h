@@ -7,6 +7,7 @@ class Tor : public Shape
 public:
     Tor();
     void func();
+    ~Tor();
 };
 
 #endif // TOR_H

@@ -14,3 +14,7 @@ Point Shape::pointOn(int i, int j){
     func();
     return Point(x, y, z);
 }
+
+Shape::~Shape(){
+
+}

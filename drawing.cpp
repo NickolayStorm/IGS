@@ -1,7 +1,6 @@
 #include "drawing.h"
 #include <QPen>
 //Drawing* Drawing::_self = nullptr;
-//Controller* Controller::_self = nullptr;
 Drawing::Drawing()
 {
 
@@ -33,6 +32,15 @@ void Drawing::setColorParams(QPainter &paint, ColorOption opts){
     paint.setPen(pen);
 }
 
-void Drawing::drawPloygon(QPainter &paint, QPoint *points, int size){
+void Drawing::drawPolygon(QPainter &paint, QPoint *points, int size){
+    paint.drawPolygon(points, size);
+}
+
+void Drawing::drawPolygon(QPainter &paint, QPoint *points, int size, QColor color){
+    QBrush brush;
+    brush.setColor(color);
+    brush.setStyle(Qt::SolidPattern);
+    paint.setBrush(brush);
+
     paint.drawPolygon(points, size);
 }

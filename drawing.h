@@ -14,7 +14,8 @@ public:
 //    static Drawing* instance();
     void drawPoint(QPainter&, QPoint&);
     void drawAxe(QPainter&, QPoint &begin, QPoint &end, QString name);
-    void drawPloygon(QPainter&, QPoint*, int size);
+    void drawPolygon(QPainter&, QPoint*, int size);
+    void drawPolygon(QPainter&, QPoint*, int size, QColor color);
     void setColorParams(QPainter&, ColorOption opts);
 
 };
