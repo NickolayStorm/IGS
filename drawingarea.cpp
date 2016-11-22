@@ -17,6 +17,24 @@ void DrawingArea::paintEvent(QPaintEvent*){
     Transforms transforms;
     transforms.printMatrix();
 
+    auto *plgns = Controller::instance()->getPolygons();
+    auto mapping = [&](Point p){
+        return transforms.transform(p);
+    };
+
+    if(Controller::instance()->isPainted()){
+        for(auto& p : *plgns){
+            auto points = p.pointsToQPoint(mapping);
+            auto color = Controller::instance()->getPolygonColor(p);
+            Drawing().drawPolygon(paint, points.get(), p.cornerCount(), color);
+        }
+    }else{
+        for(auto& p : *plgns){
+            auto points = p.pointsToQPoint(mapping);
+            Drawing().drawPolygon(paint, points.get(), p.cornerCount());
+        }
+    }
+
     // X axe
     Point startX(AXIS_HALF_LEN, 0, 0);
     Point endX(-AXIS_HALF_LEN, 0, 0);
@@ -44,23 +62,5 @@ void DrawingArea::paintEvent(QPaintEvent*){
     auto qendY = transforms.transform(endY);
 
     Drawing().drawAxe(paint, qstartY, qendY, "Y");
-
-    auto *plgns = Controller::instance()->getPolygons();
-    auto mapping = [&](Point p){
-        return transforms.transform(p);
-    };
-
-    if(Controller::instance()->isPainted()){
-        for(auto& p : *plgns){
-            auto points = p.pointsToQPoint(mapping);
-            auto color = Controller::instance()->getPolygonColor(p);
-            Drawing().drawPolygon(paint, points.get(), p.cornerCount(), color);
-        }
-    }else{
-        for(auto& p : *plgns){
-            auto points = p.pointsToQPoint(mapping);
-            Drawing().drawPolygon(paint, points.get(), p.cornerCount());
-        }
-    }
 
 }

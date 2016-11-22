@@ -4,16 +4,16 @@
 Tor::Tor() : Shape()
 {
     uMin = 0; uInitMax = uMax = 360; vMin = 0; vInitMax = vMax = 360;
-    a = 70; b = 40;
+    _a = 70; _b = 40;
     name = "Tor";
 }
 
 void Tor::func(){
     u *= M_PI / 180;
     v *= M_PI / 180;
-    x = (b * cos(v) + a) * cos(u);
-    y = (b * cos(v) + a) * sin(u);
-    z = b * sin(v);
+    x = (_b * cos(v) + _a) * cos(u);
+    y = (_b * cos(v) + _a) * sin(u);
+    z = _b * sin(v);
 }
 
 Tor::~Tor(){

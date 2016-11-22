@@ -8,7 +8,7 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Lab1
+TARGET = torable
 TEMPLATE = app
 
 CONFIG += C++14
@@ -22,7 +22,10 @@ SOURCES += main.cpp\
     controller.cpp \
     shape.cpp \
     tor.cpp \
-    polygon.cpp
+    polygon.cpp \
+    heart.cpp \
+    toruscurve.cpp \
+    ennepersurface.cpp
 
 HEADERS  += mainwindow.h \
     drawingarea.h \
@@ -32,6 +35,9 @@ HEADERS  += mainwindow.h \
     controller.h \
     shape.h \
     tor.h \
-    polygon.h
+    polygon.h \
+    heart.h \
+    toruscurve.h \
+    ennepersurface.h
 
 FORMS    += mainwindow.ui

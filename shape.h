@@ -1,14 +1,15 @@
 #ifndef SHAPE_H
 #define SHAPE_H
 #include <QString>
+#include <QMap>
 #include "point.h"
 
 class Shape
 {
 protected:
     int vCount, uCount;
-    double a, b, c;
-    double uMin, uMax, vMin, vMax, uInitMax, vInitMax;
+    int _a, _b, _c;
+    int uMin, uMax, vMin, vMax, uInitMax, vInitMax;
     const int DEFAULT_PARAMETR_VALUE = 50;
     const int DEFAULT_COUNT = 20;
     const int DEFAULT_MAX = 100;
@@ -17,6 +18,11 @@ protected:
 public:
     Shape();
     Point pointOn(int i, int j);
+    void setUV(int, int);
+    QPair <int, int> getUVMax();
+    QPair <int, int> getInit();
+    void setParams(int fst, int snd);
+    QPair <int, int> getParams();
     virtual void func() = 0;
     virtual ~Shape();
 

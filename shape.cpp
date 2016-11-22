@@ -1,7 +1,7 @@
 #include "shape.h"
 
 Shape::Shape() {
-    a = b = c = DEFAULT_PARAMETR_VALUE;
+    _a = _b = _c = DEFAULT_PARAMETR_VALUE;
     uCount = vCount = DEFAULT_COUNT;
     u = v = x = y = z = 0;
     uMin = vMin = 0;
@@ -13,6 +13,28 @@ Point Shape::pointOn(int i, int j){
     v = vMin + ((double)j) / (vCount - 1) * (vMax - vMin);
     func();
     return Point(x, y, z);
+}
+
+void Shape::setUV(int u, int v){
+    uMax = u;
+    vMax = v;
+}
+
+QPair <int, int> Shape::getUVMax(){
+    return QPair<int, int>(uMax, vMax);
+}
+
+QPair <int, int> Shape::getInit(){
+    return QPair<int, int>(uInitMax, vInitMax);
+}
+
+void Shape::setParams(int a, int b){
+    _a = a;
+    _b = b;
+}
+
+QPair <int, int> Shape::getParams(){
+    return QPair<int, int>(_a, _b);
 }
 
 Shape::~Shape(){

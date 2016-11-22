@@ -4,10 +4,11 @@
 #include "drawingarea.h"
 #include "point.h"
 #include <QObject>
+#include <QMap>
+#include <functional>
 #include "shape.h"
 #include <vector>
 #include "polygon.h"
-
 
 class Controller : public QObject
 {
@@ -20,26 +21,34 @@ public:
     inline bool isPainted(){return _isPainted;}
     ~Controller();
 private:
-    std::vector<Point> _points;
+    std::vector<std::vector<Point>> _points;
     std::vector<Polygon> _plgns;
     void refreshFigures();
-    void setShape(){}
     static Controller* _self;
     Controller();
     MainWindow _mainWindow;
-    QSize _areaSize;
+    // TODO: use it.
+//    QSize _areaSize;
     Point _viewer;
-    Shape* _shape;
+    Shape* _shape = nullptr;
     QColor _frontColor;
     QColor _backColor;
     bool _isPainted;
+    int _uCount;
+    int _vCount;
+    // Little factory using lambds
+    QMap<QString, std::function <Shape* ()> > _shapes;
 
 signals:
 
 public slots:
+    void figureChanged(QString);
     void slidersChanged(Point);
     void colorsChanged(QColor, QColor);
     void isPaintedChangd(bool);
+    void uvChanged(int, int);
+    void uvStepsChanged(int, int);
+    void paramsChanged(int, int);
 };
 
 #endif // CONTROLLER_H
