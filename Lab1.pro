@@ -11,7 +11,7 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 TARGET = torable
 TEMPLATE = app
 
-CONFIG += C++14
+CONFIG += C++17
 
 SOURCES += main.cpp\
         mainwindow.cpp \

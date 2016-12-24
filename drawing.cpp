@@ -41,6 +41,9 @@ void Drawing::drawPolygon(QPainter &paint, QPoint *points, int size, QColor colo
     brush.setColor(color);
     brush.setStyle(Qt::SolidPattern);
     paint.setBrush(brush);
+    QPen pen;
+    pen.setColor(color);
+    paint.setPen(pen);
 
     paint.drawPolygon(points, size);
 }

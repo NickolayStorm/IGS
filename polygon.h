@@ -4,10 +4,11 @@
 #include <functional>
 #include <memory>
 #include <QPoint>
+#include <array>
 class Polygon
 {
     static const short _countCorners = 3;
-    Point _points[_countCorners];
+    std::array<Point, 3> _points;
     float computeCos();
     float _cos;
 public:
@@ -17,8 +18,8 @@ public:
         return _countCorners;
     }
     inline float getCos(){return _cos;}
-    std::unique_ptr < QPoint[] >
-    pointsToQPoint(std::function<QPoint (Point)> mapping);
+    inline std::array<Point, 3> getPoints(){return _points;}
+    int getAverageZ();
 };
 
 #endif // POLYGON_H

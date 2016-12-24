@@ -70,7 +70,7 @@ void MainWindow::changeInsideColor(){
 }
 
 void MainWindow::changeOutsideColor(){
-    QColor col = QColorDialog::getColor(_inside, this,
+    QColor col = QColorDialog::getColor(_outside, this,
                                         QString("Choose outside color"));
     if(col.isValid()){
         _outside = col;

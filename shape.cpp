@@ -24,6 +24,11 @@ QPair <int, int> Shape::getUVMax(){
     return QPair<int, int>(uMax, vMax);
 }
 
+void Shape::setStepCounts(unsigned u, unsigned v){
+    uCount = u;
+    vCount = v;
+}
+
 QPair <int, int> Shape::getInit(){
     return QPair<int, int>(uInitMax, vInitMax);
 }

@@ -1,5 +1,6 @@
 #include "polygon.h"
 #include <cmath>
+#include <numeric>
 
 Polygon::Polygon(Point* points)
 {
@@ -19,11 +20,12 @@ float Polygon::computeCos(){
     int bx = _points[2].getX() - _points[0].getX();
     int by = _points[2].getY() - _points[0].getY();
     int bz = _points[2].getZ() - _points[0].getZ();
+    // (x, y, z) -- normal vector
     int x = ay * bz - az * by;
     int y = az * bx - ax * bz;
     int z = ax * by - ay * bx;
-    float size = sqrt(x * x + y * y + z * z);
-    return (float)z / size;
+    float len = sqrt(x * x + y * y + z * z);
+    return (float)z / len;
 }
 
 Polygon::Polygon(Point one, Point two, Point three){
@@ -33,11 +35,10 @@ Polygon::Polygon(Point one, Point two, Point three){
     _cos = computeCos();
 }
 
-std::unique_ptr< QPoint[] >
-Polygon::pointsToQPoint(std::function< QPoint (Point) > mapping){
-    auto smartptr = std::make_unique< QPoint[] >(_countCorners);
-    for(int i = 0; i < _countCorners; ++i){
-        smartptr[i] = mapping(_points[i]);
+int Polygon::getAverageZ(){
+    int acc = 0;
+    for(auto &i : _points){
+        acc += i.getZ();
     }
-    return std::move(smartptr);
+    return acc / _countCorners;
 }

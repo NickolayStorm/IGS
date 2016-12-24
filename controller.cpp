@@ -3,6 +3,10 @@
 #include "tor.h"
 #include "toruscurve.h"
 #include "ennepersurface.h"
+
+// Fuck you and your singleton
+#define DO_ONCE(...) { static bool _do_once_ = ([&](){ __VA_ARGS__ }(), true); (void)_do_once_; }
+
 Controller* Controller::_self = nullptr;
 Controller::Controller() : QObject(nullptr),
                            _mainWindow(Qt::red, Qt::white),
@@ -10,11 +14,11 @@ Controller::Controller() : QObject(nullptr),
 {
     Transforms().refreshMatrix(_viewer, 200);
 
-    _shapes.insert(QString("Torus")          , [](){return new Tor();}           );
-    _shapes.insert(QString("Torus curve")    , [](){return new TorusCurve();}    );
-    _shapes.insert(QString("Enneper Surface"), [](){return new EnneperSurface();});
+    _shapes.insert(QString("Torus")          , []{ return std::move(std::make_unique<Shape*>(new Tor())); }            );
+    _shapes.insert(QString("Torus curve")    , []{ return std::move(std::make_unique<Shape*>(new TorusCurve())); }     );
+    _shapes.insert(QString("Enneper Surface"), []{ return std::move(std::make_unique<Shape*>(new EnneperSurface())); } );
 
-    // Actially we should use just "_shapes.keys()"
+    // Actually we should use just "_shapes.keys()"
     // But if we do that
     // We would have been the unrepresentative order of elements
     // And we are have to use some dificult and boring funcs, so:
@@ -56,45 +60,45 @@ void Controller::refreshFigures(){
     std::vector<std::vector<Point>> points;
     points.reserve(20);
     _plgns.clear();
+    Transforms transforms;
     for(int i = 0; i < _uCount; ++i){
         std::vector<Point> subVec;
         subVec.reserve(_vCount);
         points.push_back(subVec);
         for(int j = 0; j < _vCount; ++j){
-            points[i].push_back(_shape->pointOn(i, j));
+            points[i].push_back((*_shape)->pointOn(i, j));
             // TODO: remove this condition
             if (i > 0 && j > 0) {
-                // Indexing like [i][j]
-                std::cout << "Max indexing: " << i*_uCount + j << std::endl;
-                _plgns.push_back(Polygon(points[i - 1][j-1],
-                                         points[i - 1][j],
-                                         points[i][j-1]));
-
-                _plgns.push_back(Polygon(points[i][j-1],
-                                         points[i - 1][j],
-                                         points[i][j]));
-
+                Polygon one(  transforms.transform(points[i - 1][j - 1])
+                            , transforms.transform(points[i - 1][j])
+                            , transforms.transform(points[i][j-1]) );
+                _plgns.push_back(one);
+                Polygon two( transforms.transform(points[i][j - 1])
+                           , transforms.transform(points[i - 1][j])
+                           , transforms.transform(points[i][j]) );
+                _plgns.push_back(two);
             }
         }
     }
-    std::cout << "u count: " << _uCount << std::endl;
+    if(_isPainted){
+        std::sort(_plgns.begin(), _plgns.end(),
+                  [](auto &one, auto &two) -> bool {
+            return one.getAverageZ() < two.getAverageZ();
+        }
+        );
+    }
 }
 
 void Controller::figureChanged(QString name){
-    if(_shape != nullptr){
-        delete _shape;
-        _shape = nullptr;
-    }
+    auto iter_shape = _shapes.find(name);
+    _shape = (*iter_shape)();
 
-    auto ishape = _shapes.find(name);
-    _shape = (*ishape)();
-
-    auto maxes = _shape->getUVMax();
-    auto currs = _shape->getInit();
+    auto maxes = (*_shape)->getUVMax();
+    auto currs = (*_shape)->getInit();
     _mainWindow.setUVSliderParams(maxes.first, maxes.second,
                                   currs.first, currs.second);
 
-    auto params = _shape->getParams();
+    auto params = (*_shape)->getParams();
     _mainWindow.setFigureSliderParams(params.first, params.second);
     refreshFigures();
     _mainWindow.updateDrawingArea();
@@ -116,10 +120,9 @@ QColor Controller::getPolygonColor(Polygon &polygon){
 }
 
 Controller* Controller::instance(){
-    if(Controller::_self == nullptr){
-        Controller::_self = new Controller();
-    }
-
+    DO_ONCE(
+             Controller::_self = new Controller();
+           )
     return Controller::_self;
 }
 
@@ -127,6 +130,7 @@ void Controller::slidersChanged(Point newViewer){
     _viewer = newViewer;
     // TODO: 200 to real center
     Transforms().refreshMatrix(_viewer, 200);
+    refreshFigures();
     _mainWindow.updateDrawingArea();
 }
 
@@ -138,11 +142,12 @@ void Controller::colorsChanged(QColor inside, QColor outside){
 
 void Controller::isPaintedChangd(bool is){
     _isPainted = is;
+    refreshFigures();
     _mainWindow.updateDrawingArea();
 }
 
 void Controller::uvChanged(int u, int v){
-    _shape->setUV(u, v);
+    (*_shape)->setUV(u, v);
     refreshFigures();
     _mainWindow.updateDrawingArea();
 }
@@ -150,12 +155,13 @@ void Controller::uvChanged(int u, int v){
 void Controller::uvStepsChanged(int u, int v){
     _uCount = u;
     _vCount = v;
+    (*_shape)->setStepCounts(u, v);
     refreshFigures();
     _mainWindow.updateDrawingArea();
 }
 
 void Controller::paramsChanged(int fst, int snd){
-    _shape->setParams(fst, snd);
+    (*_shape)->setParams(fst, snd);
     refreshFigures();
     _mainWindow.updateDrawingArea();
 }
@@ -165,7 +171,6 @@ std::vector<Polygon>* Controller::getPolygons(){
 }
 
 Controller::~Controller(){
-    delete _shape;
 }
 
 

@@ -7,7 +7,7 @@ class Transforms
 {
 private:
     static matrix<float> _matr;
-    static matrix<float> transfer(QPoint);
+    static matrix<float> transfer(int, int);
     static matrix<float> rotationX(Point viewer);
     static matrix<float> rotationZ(Point viewer);
     static matrix<float> projaction();
@@ -16,7 +16,7 @@ private:
 public:
     Transforms();
     void refreshMatrix(Point viewer, int center);
-    QPoint transform(Point point);
+    Point transform(Point point);
     void printMatrix(){
         std::cout << "Transforms::printMatrix()\n"
                   << _matr << std::endl;

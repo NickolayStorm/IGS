@@ -9,6 +9,7 @@
 #include "shape.h"
 #include <vector>
 #include "polygon.h"
+#include <memory>
 
 class Controller : public QObject
 {
@@ -30,14 +31,15 @@ private:
     // TODO: use it.
 //    QSize _areaSize;
     Point _viewer;
-    Shape* _shape = nullptr;
+//    Shape* _shape = nullptr;
+    std::unique_ptr<Shape*> _shape;
     QColor _frontColor;
     QColor _backColor;
     bool _isPainted;
     int _uCount;
     int _vCount;
     // Little factory using lambds
-    QMap<QString, std::function <Shape* ()> > _shapes;
+    QMap<QString, std::unique_ptr<Shape*> (*) () > _shapes;
 
 signals:
 

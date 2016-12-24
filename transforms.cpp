@@ -18,19 +18,17 @@ matrix<float> Transforms::identityMatrix(){
         }
         m(i, i) = 1;
     }
-    return m;
+    return std::move(m);
 }
 
-QPoint Transforms::transform(Point point){
+Point Transforms::transform(Point point){
     auto mpoint = point.makeMatrix();
     auto m = prod(mpoint, _matr);
     Point res(m);
-    QPoint qres(-res.getX(), res.getY());
-    return qres;
+    return std::move(res);
 }
 
 void Transforms::refreshMatrix(Point viewer, int center){
-    QPoint pcenter(-center, center);
     matrix<float> m = identityMatrix();
     // TODO: Actually I don't know what's going on
     // Look's like we need one more check
@@ -38,9 +36,8 @@ void Transforms::refreshMatrix(Point viewer, int center){
         m = prod(m, rotationZ(viewer));
         m = prod(m, rotationX(viewer));
     }
+    m = prod(m, transfer(-center, center));
     m = prod(m, mirror_yoz());
-    m = prod(m, projaction());
-    m = prod(m, transfer(pcenter));
     this->_matr = m;
     cout << "refreshMatrix()\n";
     cout << _matr << endl;
@@ -50,20 +47,20 @@ void Transforms::refreshMatrix(Point viewer, int center){
 matrix<float> Transforms::projaction(){
     auto m = Transforms::identityMatrix();
     m(2, 2) = 0;
-    return m;
+    return std::move(m);
 }
 
-matrix<float> Transforms::transfer(QPoint moving){
+matrix<float> Transforms::transfer(int x, int y){
     auto m = Transforms::identityMatrix();
-    m(3, 0) = moving.x();
-    m(3, 1) = moving.y();
-    return m;
+    m(3, 0) = x;
+    m(3, 1) = y;
+    return std::move(m);
 }
 
 matrix<float> Transforms::mirror_yoz(){
     auto m = identityMatrix();
     m(0, 0) = -1;
-    return m;
+    return std::move(m);
 }
 
 matrix<float> Transforms::rotationX(Point viewer){
@@ -78,7 +75,7 @@ matrix<float> Transforms::rotationX(Point viewer){
     res(2, 1) = -(sqrt(n*n + m*m) / sqrt(n*n + m*m + l*l));
     res(2, 2) = l / (sqrt(n*n + m*m + l*l));
 
-    return res;
+    return std::move(res);
 
 }
 
@@ -93,5 +90,5 @@ matrix<float> Transforms::rotationZ(Point viewer){
     res(1, 0) = -(n / (sqrt(n*n + m*m)));
     res(1, 1) = m / (sqrt(n*n + m*m));
 
-    return res;
+    return std::move(res);
 }
