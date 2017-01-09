@@ -3,19 +3,28 @@
 #include "transforms.h"
 #include "point.h"
 #include "controller.h"
+#include <QMouseEvent>
 #include <QDebug>
 #define AXIS_HALF_LEN 150
 DrawingArea::DrawingArea(QWidget *parent) : QWidget(parent)
 {
     this->show();
 }
+
+void DrawingArea::mousePressEvent(QMouseEvent *event){
+    _prevCursorPos = event->pos();
+}
+
+void DrawingArea::mouseMoveEvent(QMouseEvent *event){
+    QPoint diff = _prevCursorPos - event->pos();
+    _prevCursorPos = event->pos();
+    emit moveViewerPos(diff);
+}
+
 void DrawingArea::paintEvent(QPaintEvent*){
 
     QPainter paint(this);
     Drawing().setColorParams(paint, Drawing::ColorOption::WhitePalette);
-
-    Transforms transforms;
-    transforms.printMatrix();
 
     auto *plgns = Controller::instance()->getPolygons();
 

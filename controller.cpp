@@ -12,7 +12,7 @@ Controller::Controller() : QObject(nullptr),
                            _mainWindow(Qt::red, Qt::white),
                            _viewer(10, 10, 10)
 {
-    Transforms().refreshMatrix(_viewer, 200);
+    Transforms::instance()->refreshMatrix(_viewer, 200);
 
     _shapes.insert(QString("Torus")          , []{ return std::move(std::make_unique<Shape*>(new Tor())); }            );
     _shapes.insert(QString("Torus curve")    , []{ return std::move(std::make_unique<Shape*>(new TorusCurve())); }     );
@@ -39,20 +39,20 @@ Controller::Controller() : QObject(nullptr),
     _mainWindow.show();
     figureChanged("Torus");
 
-    connect(&_mainWindow, SIGNAL( slidersChanged(Point) ),
-            this,           SLOT( slidersChanged(Point) )        );
     connect(&_mainWindow, SIGNAL( colorsChanged(QColor,QColor) ),
             this,           SLOT( colorsChanged(QColor,QColor) ) );
     connect(&_mainWindow, SIGNAL( isPaintedChanged(bool) ),
             this,           SLOT( isPaintedChangd(bool))         );
     connect(&_mainWindow, SIGNAL( uvChanged(int,int) ),
-            this,           SLOT( uvChanged(int,int) )          );
+            this,           SLOT( uvChanged(int,int) )           );
     connect(&_mainWindow, SIGNAL( figureChanged(QString) ),
             this,           SLOT( figureChanged(QString))        );
     connect(&_mainWindow, SIGNAL( uvStepsChanged(int,int) ),
             this,           SLOT( uvStepsChanged(int,int))       );
     connect(&_mainWindow, SIGNAL( paramsChanged(int,int) ),
             this,           SLOT( paramsChanged(int,int))        );
+    connect(&_mainWindow, SIGNAL( viewerPosMoved(float,float) ),
+            this,           SLOT( moveViewer(float,float) )      );
 }
 
 void Controller::refreshFigures(){
@@ -60,7 +60,7 @@ void Controller::refreshFigures(){
     std::vector<std::vector<Point>> points;
     points.reserve(20);
     _plgns.clear();
-    Transforms transforms;
+    Transforms &transforms = *Transforms::instance();
     for(int i = 0; i < _uCount; ++i){
         std::vector<Point> subVec;
         subVec.reserve(_vCount);
@@ -126,10 +126,19 @@ Controller* Controller::instance(){
     return Controller::_self;
 }
 
-void Controller::slidersChanged(Point newViewer){
+void Controller::changeViewerPos(Point newViewer){
     _viewer = newViewer;
     // TODO: 200 to real center
-    Transforms().refreshMatrix(_viewer, 200);
+    Transforms::instance()->refreshMatrix(_viewer, 200);
+    refreshFigures();
+    _mainWindow.updateDrawingArea();
+}
+
+void Controller::moveViewer(float x, float y){
+    Transforms &transforms = *Transforms::instance();
+    // x and y are swapped becouse it is a magic
+    transforms.rotateX(y);
+    transforms.rotateY(x);
     refreshFigures();
     _mainWindow.updateDrawingArea();
 }

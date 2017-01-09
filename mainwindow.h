@@ -21,22 +21,22 @@ public:
     void setShapeNames(QStringList& names);
     ~MainWindow();
 signals:
-    void slidersChanged(Point);
     void colorsChanged(QColor, QColor);
     void isPaintedChanged(bool);
     void uvChanged(int, int);
     void uvStepsChanged(int, int);
     void paramsChanged(int, int);
     void figureChanged(QString);
+    void viewerPosMoved(float, float);
 public slots:
     void isPainted(int);
-    void sliderChanged();
     void changeInsideColor();
     void changeOutsideColor();
     void changeUV();
     void changeParams();
     void changeUVSteps();
     void changeFigure(QString);
+    void moveViewerPos(QPoint);
 private:
     Ui::MainWindow *ui;
     QColor _inside;

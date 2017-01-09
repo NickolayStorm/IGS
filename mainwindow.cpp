@@ -14,11 +14,6 @@ MainWindow::MainWindow(QColor inside, QColor outside, QWidget *parent) :
     updateColorWidget(ui->insideColor, _inside);
     updateColorWidget(ui->outsideColor, _outside);
 
-    // Observer
-    connect(ui->sliderViewerX, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged()));
-    connect(ui->sliderViewerY, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged()));
-    connect(ui->sliderViewerZ, SIGNAL(valueChanged(int)), this, SLOT(sliderChanged()));
-
     // U-V
     connect(ui->sliderU, SIGNAL(valueChanged(int)), this, SLOT(changeUV()));
     connect(ui->sliderV, SIGNAL(valueChanged(int)), this, SLOT(changeUV()));
@@ -41,6 +36,9 @@ MainWindow::MainWindow(QColor inside, QColor outside, QWidget *parent) :
 
     // Check boxes
     connect(ui->isPainted, SIGNAL(stateChanged(int)), this, SLOT(isPainted(int)));
+
+    // Move viewer position on mouse
+    connect(ui->drawingArea, SIGNAL(moveViewerPos(QPoint)), this, SLOT(moveViewerPos(QPoint)));
 
 }
 
@@ -88,15 +86,6 @@ void MainWindow::updateColorWidget(QWidget *w, QColor col){
     w->setPalette(Pal);
 }
 
-void MainWindow::sliderChanged(){
-    Point viewer(
-              ui->sliderViewerX->value(),
-              ui->sliderViewerY->value(),
-              ui->sliderViewerZ->value()
-          );
-    emit slidersChanged(viewer);
-}
-
 void MainWindow::changeFigure(QString name){
     emit figureChanged(name);
 }
@@ -126,6 +115,13 @@ void MainWindow::setShapeNames(QStringList& names){
     ui->comboBoxFigure->clear();
     ui->comboBoxFigure->insertItems(0, names);
 }
+
+void MainWindow::moveViewerPos(QPoint diff){
+    float x = (float)diff.x() / 90.0;
+    float y = (float)diff.y() / 90.0;
+    emit viewerPosMoved(x, y);
+}
+
 
 MainWindow::~MainWindow()
 {

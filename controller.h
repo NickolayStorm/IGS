@@ -45,7 +45,8 @@ signals:
 
 public slots:
     void figureChanged(QString);
-    void slidersChanged(Point);
+    void changeViewerPos(Point);
+    void moveViewer(float, float);
     void colorsChanged(QColor, QColor);
     void isPaintedChangd(bool);
     void uvChanged(int, int);

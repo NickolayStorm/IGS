@@ -5,9 +5,22 @@
 using std::cout;
 using std::endl;
 using namespace boost::numeric::ublas;
-matrix<float> Transforms::_matr = Transforms::identityMatrix();
+
+// Fuck you and your singleton
+#define DO_ONCE(...) { static bool _do_once_ = ([&](){ __VA_ARGS__ }(), true); (void)_do_once_; }
+
+Transforms* Transforms::_self = nullptr;
+
 Transforms::Transforms()
 {
+    _matr = identityMatrix();
+}
+
+Transforms* Transforms::instance(){
+    DO_ONCE(
+                Transforms::_self = new Transforms();
+            )
+    return _self;
 }
 
 matrix<float> Transforms::identityMatrix(){
@@ -28,21 +41,20 @@ Point Transforms::transform(Point point){
     return std::move(res);
 }
 
-void Transforms::refreshMatrix(Point viewer, int center){
+void Transforms::bindGeneralMatrix(){
     matrix<float> m = identityMatrix();
-    // TODO: Actually I don't know what's going on
-    // Look's like we need one more check
-    if(viewer.getX() != 0 || viewer.getY() != 0){
-        m = prod(m, rotationZ(viewer));
-        m = prod(m, rotationX(viewer));
-    }
-    m = prod(m, transfer(-center, center));
+    m = prod(m, _rotations);
+    m = prod(m, _move);
     m = prod(m, mirror_yoz());
-    this->_matr = m;
-    cout << "refreshMatrix()\n";
-    cout << _matr << endl;
+    _matr = m;
+    printMatrix();
 }
 
+void Transforms::refreshMatrix(Point viewer, int center){
+    _rotations = prod(rotationZ(viewer), rotationX(viewer));
+    _move = transfer(-center, center);
+    bindGeneralMatrix();
+}
 
 matrix<float> Transforms::projaction(){
     auto m = Transforms::identityMatrix();
@@ -77,6 +89,31 @@ matrix<float> Transforms::rotationX(Point viewer){
 
     return std::move(res);
 
+}
+
+void Transforms::rotateY(float angle){
+    float cosinus = cos(angle);
+    float sinus = sin(angle);
+    auto rotation = identityMatrix();
+    rotation(0, 0) = cosinus;
+    rotation(0, 2) = -sinus;
+    rotation(2, 0) = sinus;
+    rotation(2, 2) = cosinus;
+    _rotations = prod(_rotations, rotation);
+    bindGeneralMatrix();
+}
+
+void Transforms::rotateX(float angle){
+    float cosinus = cos(angle);
+    float sinus = sin(angle);
+    auto rotation = identityMatrix();
+    rotation(0, 0) = 1;
+    rotation(1, 1) = cosinus;
+    rotation(1, 2) = sinus;
+    rotation(2, 1) = -sinus;
+    rotation(2, 2) = cosinus;
+    _rotations = prod(_rotations, rotation);
+    bindGeneralMatrix();
 }
 
 matrix<float> Transforms::rotationZ(Point viewer){

@@ -6,7 +6,11 @@ using namespace boost::numeric::ublas;
 class Transforms
 {
 private:
-    static matrix<float> _matr;
+    matrix<float> _matr;
+    matrix<float> _rotations;
+    matrix<float> _move;
+    Transforms();
+    static Transforms *_self;
     static matrix<float> transfer(int, int);
     static matrix<float> rotationX(Point viewer);
     static matrix<float> rotationZ(Point viewer);
@@ -14,13 +18,16 @@ private:
     static inline matrix<float> mirror_yoz();
     static matrix<float> identityMatrix();
 public:
-    Transforms();
+    static Transforms* instance();
+    void bindGeneralMatrix();
     void refreshMatrix(Point viewer, int center);
     Point transform(Point point);
     void printMatrix(){
         std::cout << "Transforms::printMatrix()\n"
                   << _matr << std::endl;
     }
+    void rotateX(float angle);
+    void rotateY(float angle);
 
 };
 
