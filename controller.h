@@ -5,10 +5,11 @@
 #include "point.h"
 #include <QObject>
 #include <QMap>
+#include <QImage>
 #include <functional>
 #include "shape.h"
 #include <vector>
-#include "polygon.h"
+#include "coloredpolygon.h"
 #include <memory>
 
 class Controller : public QObject
@@ -16,22 +17,23 @@ class Controller : public QObject
     Q_OBJECT
 public:
     static Controller* instance();
-    inline Point getViewer(){return _viewer;}
-    std::vector<Polygon>* getPolygons();
+    QImage *getPixmap();
     QColor getPolygonColor(Polygon&);
+    std::unique_ptr<QImage*> _pixMap;
     inline bool isPainted(){return _isPainted;}
     ~Controller();
 private:
-    std::vector<std::vector<Point>> _points;
-    std::vector<Polygon> _plgns;
-    void refreshFigures();
+    std::vector<ColoredPolygon> _plgns;
+    void refreshPoints();
+    void refreshPixMap();
+    void refreshPolygonColors();
+    void polygonOnPixmap(ColoredPolygon&);
     static Controller* _self;
     Controller();
     MainWindow _mainWindow;
-    // TODO: use it.
-//    QSize _areaSize;
+    QSize _areaSize;
     Point _viewer;
-//    Shape* _shape = nullptr;
+    std::vector<int> _zBuffer;
     std::unique_ptr<Shape*> _shape;
     QColor _frontColor;
     QColor _backColor;
@@ -39,7 +41,7 @@ private:
     int _uCount;
     int _vCount;
     // Little factory using lambds
-    QMap<QString, std::unique_ptr<Shape*> (*) () > _shapes;
+    QMap< QString, std::unique_ptr<Shape*> (*) () > _shapes;
 
 signals:
 

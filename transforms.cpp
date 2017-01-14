@@ -50,9 +50,9 @@ void Transforms::bindGeneralMatrix(){
     printMatrix();
 }
 
-void Transforms::refreshMatrix(Point viewer, int center){
+void Transforms::refreshMatrix(Point viewer, int x, int y){
     _rotations = prod(rotationZ(viewer), rotationX(viewer));
-    _move = transfer(-center, center);
+    _move = transfer(-x, y);
     bindGeneralMatrix();
 }
 

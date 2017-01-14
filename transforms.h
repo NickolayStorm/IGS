@@ -20,7 +20,8 @@ private:
 public:
     static Transforms* instance();
     void bindGeneralMatrix();
-    void refreshMatrix(Point viewer, int center);
+    // X and Y are center of coordinats
+    void refreshMatrix(Point viewer, int x, int y);
     Point transform(Point point);
     void printMatrix(){
         std::cout << "Transforms::printMatrix()\n"

@@ -26,29 +26,32 @@ void DrawingArea::paintEvent(QPaintEvent*){
     QPainter paint(this);
     Drawing().setColorParams(paint, Drawing::ColorOption::WhitePalette);
 
-    auto *plgns = Controller::instance()->getPolygons();
+    Drawing().drawImage(paint, Controller::instance()->getPixmap());
 
-    if(Controller::instance()->isPainted()){
-        for(auto& p : *plgns){
-            auto color = Controller::instance()->getPolygonColor(p);
-            auto points = p.getPoints();
-            std::array<QPoint, 3> qpoints;
-            std::transform(points.begin(), points.end(),
-                           qpoints.begin(),
-                           [](auto &x){ return x.getQPoint();}
-            );
-            Drawing().drawPolygon(paint, qpoints.data(), p.cornerCount(), color);
-        }
-    }
-    else{
-        for(auto& p : *plgns){
-            auto points = p.getPoints();
-            std::array<QPoint, 3> qpoints;
-            std::transform(points.begin(), points.end(),
-                           qpoints.begin(),
-                           [](auto &x){ return x.getQPoint();}
-            );
-            Drawing().drawPolygon(paint, qpoints.data(), p.cornerCount());
-        }
-    }
+
+//    auto *plgns = Controller::instance()->getPolygons();
+
+//    if(Controller::instance()->isPainted()){
+//        for(auto& p : *plgns){
+//            auto color = Controller::instance()->getPolygonColor(p);
+//            auto points = p.getPoints();
+//            std::array<QPoint, 3> qpoints;
+//            std::transform(points.begin(), points.end(),
+//                           qpoints.begin(),
+//                           [](auto &x){ return x.getQPoint();}
+//            );
+//            Drawing().drawPolygon(paint, qpoints.data(), p.cornerCount(), color);
+//        }
+//    }
+//    else{
+//        for(auto& p : *plgns){
+//            auto points = p.getPoints();
+//            std::array<QPoint, 3> qpoints;
+//            std::transform(points.begin(), points.end(),
+//                           qpoints.begin(),
+//                           [](auto &x){ return x.getQPoint();}
+//            );
+//            Drawing().drawPolygon(paint, qpoints.data(), p.cornerCount());
+//        }
+//    }
 }

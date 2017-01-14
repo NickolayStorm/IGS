@@ -15,7 +15,8 @@ public:
     void drawPoint(QPainter&, QPoint&);
     void drawAxe(QPainter&, QPoint &begin, QPoint &end, QString name);
     void drawPolygon(QPainter&, QPoint*, int size);
-    void drawPolygon(QPainter&, QPoint*, int size, QColor color);
+    void drawPolygon(QPainter&, QPoint*, int size, QColor color);    
+    void drawImage(QPainter& paint, QImage* im);
     void setColorParams(QPainter&, ColorOption opts);
 
 };

@@ -122,6 +122,9 @@ void MainWindow::moveViewerPos(QPoint diff){
     emit viewerPosMoved(x, y);
 }
 
+QSize MainWindow::drawingAreaSize(){
+    return ui->drawingArea->size();
+}
 
 MainWindow::~MainWindow()
 {

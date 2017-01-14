@@ -12,7 +12,12 @@ Controller::Controller() : QObject(nullptr),
                            _mainWindow(Qt::red, Qt::white),
                            _viewer(10, 10, 10)
 {
-    Transforms::instance()->refreshMatrix(_viewer, 200);
+    _areaSize = _mainWindow.drawingAreaSize();
+    Transforms::instance()->refreshMatrix(
+                _viewer,
+                _areaSize.width() / 2,
+                _areaSize.height() / 2
+                );
 
     _shapes.insert(QString("Torus")          , []{ return std::move(std::make_unique<Shape*>(new Tor())); }            );
     _shapes.insert(QString("Torus curve")    , []{ return std::move(std::make_unique<Shape*>(new TorusCurve())); }     );
@@ -36,6 +41,11 @@ Controller::Controller() : QObject(nullptr),
     _uCount = 20;
     _vCount = 20;
 
+    _pixMap = std::make_unique<QImage*>(new QImage(_areaSize, QImage::Format_RGB32));
+//    _zBuffer.reserve(_areaSize.width() * _areaSize.height());
+    _zBuffer.resize(_areaSize.width() * _areaSize.height(),
+                    std::numeric_limits<int>::min());
+
     _mainWindow.show();
     figureChanged("Torus");
 
@@ -55,37 +65,101 @@ Controller::Controller() : QObject(nullptr),
             this,           SLOT( moveViewer(float,float) )      );
 }
 
-void Controller::refreshFigures(){
-
+void Controller::refreshPoints(){
     std::vector<std::vector<Point>> points;
-    points.reserve(20);
+    points.resize(_uCount);
     _plgns.clear();
+
     Transforms &transforms = *Transforms::instance();
-    for(int i = 0; i < _uCount; ++i){
+    auto mappedPoint = [&](int i, int j){
+            return transforms.transform((*_shape)->pointOn(i, j));
+    };
+
+    // Points with [0, j]
+    std::vector<Point> subVec;
+    subVec.reserve(_vCount);
+    points.push_back(subVec);
+    for(int j = 0; j < _vCount; ++j){
+        points[0].push_back(mappedPoint(0, j));
+    }
+
+    for(int i = 1; i < _uCount; ++i){
         std::vector<Point> subVec;
         subVec.reserve(_vCount);
         points.push_back(subVec);
-        for(int j = 0; j < _vCount; ++j){
-            points[i].push_back((*_shape)->pointOn(i, j));
-            // TODO: remove this condition
-            if (i > 0 && j > 0) {
-                Polygon one(  transforms.transform(points[i - 1][j - 1])
-                            , transforms.transform(points[i - 1][j])
-                            , transforms.transform(points[i][j-1]) );
-                _plgns.push_back(one);
-                Polygon two( transforms.transform(points[i][j - 1])
-                           , transforms.transform(points[i - 1][j])
-                           , transforms.transform(points[i][j]) );
-                _plgns.push_back(two);
-            }
+
+        // Points with [i, 0]
+        points[i].push_back(mappedPoint(i, 0));
+
+        for(int j = 1; j < _vCount; ++j){
+            points[i].push_back(mappedPoint(i, j));
+            ColoredPolygon fst( points[i - 1][j - 1]
+                              , points[i - 1][j]
+                              , points[i][j - 1]);
+            _plgns.push_back(fst);
+            ColoredPolygon snd( points[i][j - 1]
+                              , points[i - 1][j]
+                              , points[i][j]);
+            _plgns.push_back(snd);
         }
     }
-    if(_isPainted){
-        std::sort(_plgns.begin(), _plgns.end(),
-                  [](auto &one, auto &two) -> bool {
-            return one.getAverageZ() < two.getAverageZ();
+
+    refreshPolygonColors();
+}
+
+void Controller::refreshPolygonColors(){
+    for(auto &p : _plgns){
+        auto color = getPolygonColor(p);
+        p.setColor(color);
+    }
+    refreshPixMap();
+}
+
+void Controller::refreshPixMap(){
+    // Fill Z-buffer and pixMap
+    (*_pixMap)->fill(Qt::white);
+    std::fill(_zBuffer.begin(), _zBuffer.end(),
+              std::numeric_limits<int>::min());
+
+    for(auto &p : _plgns){
+        polygonOnPixmap(p);
+    }
+}
+
+void Controller::polygonOnPixmap(ColoredPolygon& plgn){
+    auto points = plgn.getPoints();
+    Point t0 = points[0];
+    Point t1 = points[1];
+    Point t2 = points[2];
+    QColor color = plgn.getColor();
+    if (t0.getY()==t1.getY() && t0.getY()==t2.getY()) return; // i dont care about degenerate triangles
+    if (t0.getY()>t1.getY()) std::swap(t0, t1);
+    if (t0.getY()>t2.getY()) std::swap(t0, t2);
+    if (t1.getY()>t2.getY()) std::swap(t1, t2);
+    int total_height = t2.getY() - t0.getY();
+
+    for (int i = 0; i < total_height; i++) {
+        bool second_half = i > t1.getY()-t0.getY() || t1.getY()==t0.getY();
+        int segment_height = second_half ? t2.getY()-t1.getY() : t1.getY()-t0.getY();
+        float alpha = (float)i / total_height;
+        float beta  = (float)(i - (second_half ? t1.getY() - t0.getY() : 0)) / segment_height; // be careful: with above conditions no division by zero here
+        Point A =               t0 + Point(t2 - t0) * alpha;
+        Point B = second_half ? t1 + Point(t2 - t1) * beta : t0 + Point(t1-t0) * beta;
+
+        if (A.getX()>B.getX())
+            std::swap(A, B);
+
+        for (int j=A.getX(); j<=B.getX(); j++) {
+            float phi = B.getX()==A.getX() ? 1. : (float)(j-A.getX())/(float)(B.getX()-A.getX());
+            Point P = A + Point(B - A) * phi;
+            int idx = P.getX() + P.getY()*_areaSize.width();
+            if(idx < 0 || idx > (*_pixMap)->width()*(*_pixMap)->height())
+                continue;
+            if (_zBuffer[idx] < P.getZ()) {
+                _zBuffer[idx] = P.getZ();
+                (*_pixMap)->setPixelColor(P.getQPoint(), color);
+            }
         }
-        );
     }
 }
 
@@ -100,7 +174,7 @@ void Controller::figureChanged(QString name){
 
     auto params = (*_shape)->getParams();
     _mainWindow.setFigureSliderParams(params.first, params.second);
-    refreshFigures();
+    refreshPoints();
     _mainWindow.updateDrawingArea();
 }
 
@@ -129,8 +203,12 @@ Controller* Controller::instance(){
 void Controller::changeViewerPos(Point newViewer){
     _viewer = newViewer;
     // TODO: 200 to real center
-    Transforms::instance()->refreshMatrix(_viewer, 200);
-    refreshFigures();
+    Transforms::instance()->refreshMatrix(
+                _viewer,
+                _areaSize.width() / 2,
+                _areaSize.height() / 2
+    );
+    refreshPoints();
     _mainWindow.updateDrawingArea();
 }
 
@@ -139,25 +217,26 @@ void Controller::moveViewer(float x, float y){
     // x and y are swapped becouse it is a magic
     transforms.rotateX(y);
     transforms.rotateY(x);
-    refreshFigures();
+    refreshPoints();
     _mainWindow.updateDrawingArea();
 }
 
 void Controller::colorsChanged(QColor inside, QColor outside){
     _backColor = outside;
     _frontColor = inside;
+    refreshPolygonColors();
     _mainWindow.updateDrawingArea();
 }
 
 void Controller::isPaintedChangd(bool is){
     _isPainted = is;
-    refreshFigures();
+    refreshPoints();
     _mainWindow.updateDrawingArea();
 }
 
 void Controller::uvChanged(int u, int v){
     (*_shape)->setUV(u, v);
-    refreshFigures();
+    refreshPoints();
     _mainWindow.updateDrawingArea();
 }
 
@@ -165,18 +244,18 @@ void Controller::uvStepsChanged(int u, int v){
     _uCount = u;
     _vCount = v;
     (*_shape)->setStepCounts(u, v);
-    refreshFigures();
+    refreshPoints();
     _mainWindow.updateDrawingArea();
 }
 
 void Controller::paramsChanged(int fst, int snd){
     (*_shape)->setParams(fst, snd);
-    refreshFigures();
+    refreshPoints();
     _mainWindow.updateDrawingArea();
 }
 
-std::vector<Polygon>* Controller::getPolygons(){
-    return &_plgns;
+QImage* Controller::getPixmap(){
+    return *_pixMap;
 }
 
 Controller::~Controller(){

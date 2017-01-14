@@ -9,6 +9,13 @@ Point::Point(int x, int y, int z) : _x(x), _y(y), _z(z)
 {
 
 }
+
+Point::Point(const Point &oth){
+    _x = oth._x;
+    _y = oth._y;
+    _z = oth._z;
+}
+
 Point::Point(matrix<int> m){
     _x = m(0, 0);
     _y = m(0, 1);

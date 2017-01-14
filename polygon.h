@@ -14,6 +14,7 @@ class Polygon
 public:
     Polygon(Point*);
     Polygon(Point, Point, Point);
+    Polygon(const Polygon&);
     static constexpr short cornerCount(){
         return _countCorners;
     }

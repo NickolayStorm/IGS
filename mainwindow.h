@@ -19,6 +19,7 @@ public:
     void setUVSliderParams(int umax, int vmax, int ucurr, int vcurr);
     void setFigureSliderParams(int fst, int snd);
     void setShapeNames(QStringList& names);
+    QSize drawingAreaSize();
     ~MainWindow();
 signals:
     void colorsChanged(QColor, QColor);

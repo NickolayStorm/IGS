@@ -13,6 +13,10 @@ Drawing::Drawing()
 
 //}
 
+void Drawing::drawImage(QPainter& paint, QImage* im){
+    paint.drawImage(0, 0, *im);
+}
+
 void Drawing::drawPoint(QPainter& paint, QPoint& point){
     paint.drawEllipse(point, 3, 3);
 }

@@ -15,7 +15,7 @@ void TorusCurve::func(){
     float r = u * 4;
     float xr = xx * cos(r) + yy * sin(r);
     float yr = -xx * sin(r) + yy * cos(r);
-    x = (yr + 200) * cos(u);
-    y = (yr + 200) * sin(u);
+    x = (yr + 150) * cos(u);
+    y = (yr + 150) * sin(u);
     z = xr;
 }
