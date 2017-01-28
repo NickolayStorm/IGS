@@ -1,7 +1,6 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 #include "mainwindow.h"
-#include "drawingarea.h"
 #include "point.h"
 #include <QObject>
 #include <QMap>
@@ -34,12 +33,13 @@ private:
     QSize _areaSize;
     Point _viewer;
     std::vector<int> _zBuffer;
-    std::unique_ptr<Shape*> _shape;
+    std::shared_ptr<Shape*> _shape;
+    void setWindowSliders();
     QColor _frontColor;
     QColor _backColor;
     bool _isPainted;
     // Little factory using lambds
-    QMap< QString, std::unique_ptr<Shape*> (*) () > _shapes;
+    QMap< QString, std::shared_ptr<Shape*> (*) () > _shapes;
 
 signals:
 
@@ -52,6 +52,7 @@ public slots:
     void uvChanged(int, int);
     void uvStepsChanged(int, int);
     void paramsChanged(int, int);
+    void animationStep();
 };
 
 #endif // CONTROLLER_H

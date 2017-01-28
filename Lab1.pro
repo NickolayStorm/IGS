@@ -23,10 +23,10 @@ SOURCES += main.cpp\
     shape.cpp \
     tor.cpp \
     polygon.cpp \
-    heart.cpp \
     toruscurve.cpp \
     ennepersurface.cpp \
-    coloredpolygon.cpp
+    coloredpolygon.cpp \
+    migration.cpp
 
 HEADERS  += mainwindow.h \
     drawingarea.h \
@@ -37,9 +37,9 @@ HEADERS  += mainwindow.h \
     shape.h \
     tor.h \
     polygon.h \
-    heart.h \
     toruscurve.h \
     ennepersurface.h \
-    coloredpolygon.h
+    coloredpolygon.h \
+    migration.h
 
 FORMS    += mainwindow.ui

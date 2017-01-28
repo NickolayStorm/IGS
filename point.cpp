@@ -5,7 +5,7 @@ Point::Point(){
     _z = 0;
 }
 
-Point::Point(int x, int y, int z) : _x(x), _y(y), _z(z)
+Point::Point(float x, float y, float z) : _x(x), _y(y), _z(z)
 {
 
 }
@@ -16,17 +16,21 @@ Point::Point(const Point &oth){
     _z = oth._z;
 }
 
-Point::Point(matrix<int> m){
+Point::Point(matrix<float> m){
     _x = m(0, 0);
     _y = m(0, 1);
     _z = m(0, 2);
 }
 
-matrix<int> Point::makeMatrix(){
-    matrix<int> m(1, 4);
+matrix<float> Point::makeMatrix(){
+    matrix<float> m(1, 4);
     m(0, 0) = _x;
     m(0, 1) = _y;
     m(0, 2) = _z;
     m(0, 3) = 1;
     return m;
+}
+
+float Point::distance(Point &p){
+    return (this->operator -(p)).length();
 }

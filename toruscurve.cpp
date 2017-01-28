@@ -4,7 +4,6 @@ TorusCurve::TorusCurve()
 {
     uMin = 0; uInitMax = uMax = 360; vMin = 0; vInitMax = vMax = 360;
     _a = 70; _b = 40;
-    name = "Tor";
 }
 
 void TorusCurve::func(){

@@ -3,6 +3,12 @@
 #include "tor.h"
 #include "toruscurve.h"
 #include "ennepersurface.h"
+#include "migration.h"
+#include <QTimer>
+
+#define ANIMATION_FPS 30
+
+#define ANIMAT_COUNT 48
 
 // Fuck you and your singleton
 #define DO_ONCE(...) { static bool _do_once_ = ([&](){ __VA_ARGS__ }(), true); (void)_do_once_; }
@@ -19,9 +25,9 @@ Controller::Controller() : QObject(nullptr),
                 _areaSize.height() / 2
                 );
 
-    _shapes.insert(QString("Torus")          , []{ return std::move(std::make_unique<Shape*>(new Tor())); }            );
-    _shapes.insert(QString("Torus curve")    , []{ return std::move(std::make_unique<Shape*>(new TorusCurve())); }     );
-    _shapes.insert(QString("Enneper Surface"), []{ return std::move(std::make_unique<Shape*>(new EnneperSurface())); } );
+    _shapes.insert(QString("Torus")          , []{ return std::move(std::make_shared<Shape*>(new Tor())); }            );
+    _shapes.insert(QString("Torus curve")    , []{ return std::move(std::make_shared<Shape*>(new TorusCurve())); }     );
+    _shapes.insert(QString("Enneper Surface"), []{ return std::move(std::make_shared<Shape*>(new EnneperSurface())); } );
 
     // Actually we should use just "_shapes.keys()"
     // But if we do that
@@ -45,7 +51,12 @@ Controller::Controller() : QObject(nullptr),
                     std::numeric_limits<int>::min());
 
     _mainWindow.show();
-    figureChanged("Torus");
+
+    // Init shape stuff
+    _shape = (*(_shapes.find("Torus")))();
+    setWindowSliders();
+    refreshPoints();
+    _mainWindow.updateDrawingArea();
 
     connect(&_mainWindow, SIGNAL( colorsChanged(QColor,QColor) ),
             this,           SLOT( colorsChanged(QColor,QColor) ) );
@@ -64,7 +75,6 @@ Controller::Controller() : QObject(nullptr),
 }
 
 void Controller::refreshPoints(){
-
     Transforms &transforms = *Transforms::instance();
     auto mapPoint = [&](const Point& p){
             return transforms.transform(p);
@@ -84,6 +94,7 @@ void Controller::refreshPolygonColors(){
 }
 
 void Controller::refreshPixMap(){
+
     // Fill Z-buffer and pixMap
     (*_pixMap)->fill(Qt::black);
     std::fill(_zBuffer.begin(), _zBuffer.end(),
@@ -92,6 +103,7 @@ void Controller::refreshPixMap(){
     for(auto &p : _plgns){
         polygonOnPixmap(p);
     }
+
 }
 
 void Controller::polygonOnPixmap(ColoredPolygon& plgn){
@@ -141,9 +153,13 @@ void Controller::polygonOnPixmap(ColoredPolygon& plgn){
 }
 
 void Controller::figureChanged(QString name){
-    auto iter_shape = _shapes.find(name);
-    _shape = (*iter_shape)();
+    auto new_shape = (*(_shapes.find(name)))();
+    _shape = std::make_shared<Shape*>(new Migration(_shape, new_shape, ANIMAT_COUNT));
+    _mainWindow.setEnabled(false);
+    animationStep();
+}
 
+void Controller::setWindowSliders(){
     auto maxes = (*_shape)->getUVMax();
     auto currs = (*_shape)->getInit();
     _mainWindow.setUVSliderParams(maxes.first, maxes.second,
@@ -151,8 +167,6 @@ void Controller::figureChanged(QString name){
 
     auto params = (*_shape)->getParams();
     _mainWindow.setFigureSliderParams(params.first, params.second);
-    refreshPoints();
-    _mainWindow.updateDrawingArea();
 }
 
 QColor Controller::getPolygonColor(Polygon &polygon){
@@ -225,6 +239,21 @@ void Controller::uvStepsChanged(int u, int v){
 
 void Controller::paramsChanged(int fst, int snd){
     (*_shape)->setParams(fst, snd);
+    refreshPoints();
+    _mainWindow.updateDrawingArea();
+}
+
+void Controller::animationStep(){
+
+    Migration* m = dynamic_cast<Migration*>(*_shape);
+    m->step();
+    if(!m->isFinished()){
+        QTimer::singleShot(1000/ANIMATION_FPS, this, SLOT(animationStep()));
+    }else{
+        _shape = m->getShapeTo();
+        setWindowSliders();
+        _mainWindow.setEnabled(true);
+    }
     refreshPoints();
     _mainWindow.updateDrawingArea();
 }

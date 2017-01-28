@@ -1,7 +1,6 @@
 #ifndef SHAPE_H
 #define SHAPE_H
-#include <QString>
-#include <QMap>
+#include <utility>
 #include <functional>
 #include "point.h"
 #include "coloredpolygon.h"
@@ -15,20 +14,22 @@ protected:
     const int DEFAULT_PARAMETR_VALUE = 50;
     const int DEFAULT_COUNT = 20;
     const int DEFAULT_MAX = 100;
-    QString name;
     Point pointOn(int i, int j);
-    std::vector<std::vector<Point>> makePoints(std::function<Point (Point)> mapping);
     double u, v, x, y, z;
 public:
     Shape();
-    std::vector<ColoredPolygon> getPolygons(std::function<Point (Point)> mapping);
+    std::vector<ColoredPolygon> getPolygons(std::function<Point (const Point&)> mapping);
+
+    virtual std::vector<Point>
+    makePoints(std::function<Point (const Point&)> mapping);
+
     void setUV(int, int);
-    QPair <int, int> getUVMax();
-    QPair <int, int> getInit();
+    std::pair <int, int> getUVMax() const;
+    std::pair <int, int> getInit() const;
     void setStepCounts(unsigned, unsigned);
     void setParams(int fst, int snd);
-    QPair <int, int> getParams();
-    QPair <int, int> getUVCounts();
+    std::pair <int, int> getParams() const;
+    std::pair <int, int> getUVCounts() const;
     virtual void func() = 0;
     virtual ~Shape();
 

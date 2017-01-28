@@ -20,6 +20,7 @@ public:
     void setFigureSliderParams(int fst, int snd);
     void setShapeNames(QStringList& names);
     QSize drawingAreaSize();
+    void enableAll(bool);
     ~MainWindow();
 signals:
     void colorsChanged(QColor, QColor);

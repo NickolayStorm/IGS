@@ -4,8 +4,6 @@ EnneperSurface::EnneperSurface() : Shape(){
     uMin = 0; uInitMax = uMax = 50000; vMin = 0; vInitMax = vMax = 50000;
     uCount = 100;
     vCount = 100;
-//    _a = 70; _b = 40;
-    name = "Tor";
 }
 
 void EnneperSurface::func(){

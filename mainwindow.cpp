@@ -42,6 +42,16 @@ MainWindow::MainWindow(QColor inside, QColor outside, QWidget *parent) :
 
 }
 
+void MainWindow::enableAll(bool is){
+    ui->sliderParam1->setEnabled(is);
+    ui->sliderParam2->setEnabled(is);
+    ui->sliderU->setEnabled(is);
+    ui->sliderV->setEnabled(is);
+    ui->sliderUStep->setEnabled(is);
+    ui->sliderVStep->setEnabled(is);
+    ui->comboBoxFigure->setEnabled(is);
+}
+
 void MainWindow::changeUV(){
     emit uvChanged(ui->sliderU->value(),
                    ui->sliderV->value());
