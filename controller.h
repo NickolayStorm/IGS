@@ -38,8 +38,6 @@ private:
     QColor _frontColor;
     QColor _backColor;
     bool _isPainted;
-    int _uCount;
-    int _vCount;
     // Little factory using lambds
     QMap< QString, std::unique_ptr<Shape*> (*) () > _shapes;
 

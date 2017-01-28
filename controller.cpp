@@ -38,11 +38,9 @@ Controller::Controller() : QObject(nullptr),
     _frontColor = Qt::red;
     _backColor = Qt::white;
     _isPainted = false;
-    _uCount = 20;
-    _vCount = 20;
 
     _pixMap = std::make_unique<QImage*>(new QImage(_areaSize, QImage::Format_RGB32));
-//    _zBuffer.reserve(_areaSize.width() * _areaSize.height());
+
     _zBuffer.resize(_areaSize.width() * _areaSize.height(),
                     std::numeric_limits<int>::min());
 
@@ -66,43 +64,13 @@ Controller::Controller() : QObject(nullptr),
 }
 
 void Controller::refreshPoints(){
-    std::vector<std::vector<Point>> points;
-    points.resize(_uCount);
-    _plgns.clear();
 
     Transforms &transforms = *Transforms::instance();
-    auto mappedPoint = [&](int i, int j){
-            return transforms.transform((*_shape)->pointOn(i, j));
+    auto mapPoint = [&](const Point& p){
+            return transforms.transform(p);
     };
 
-    // Points with [0, j]
-    std::vector<Point> subVec;
-    subVec.reserve(_vCount);
-    points.push_back(subVec);
-    for(int j = 0; j < _vCount; ++j){
-        points[0].push_back(mappedPoint(0, j));
-    }
-
-    for(int i = 1; i < _uCount; ++i){
-        std::vector<Point> subVec;
-        subVec.reserve(_vCount);
-        points.push_back(subVec);
-
-        // Points with [i, 0]
-        points[i].push_back(mappedPoint(i, 0));
-
-        for(int j = 1; j < _vCount; ++j){
-            points[i].push_back(mappedPoint(i, j));
-            ColoredPolygon fst( points[i - 1][j - 1]
-                              , points[i - 1][j]
-                              , points[i][j - 1]);
-            _plgns.push_back(fst);
-            ColoredPolygon snd( points[i][j - 1]
-                              , points[i - 1][j]
-                              , points[i][j]);
-            _plgns.push_back(snd);
-        }
-    }
+    _plgns = (*_shape)->getPolygons(mapPoint);
 
     refreshPolygonColors();
 }
@@ -117,7 +85,7 @@ void Controller::refreshPolygonColors(){
 
 void Controller::refreshPixMap(){
     // Fill Z-buffer and pixMap
-    (*_pixMap)->fill(Qt::white);
+    (*_pixMap)->fill(Qt::black);
     std::fill(_zBuffer.begin(), _zBuffer.end(),
               std::numeric_limits<int>::min());
 
@@ -132,10 +100,14 @@ void Controller::polygonOnPixmap(ColoredPolygon& plgn){
     Point t1 = points[1];
     Point t2 = points[2];
     QColor color = plgn.getColor();
-    if (t0.getY()==t1.getY() && t0.getY()==t2.getY()) return; // i dont care about degenerate triangles
+
+    if (t0.getY()==t1.getY() && t0.getY()==t2.getY())
+        return;
+
     if (t0.getY()>t1.getY()) std::swap(t0, t1);
     if (t0.getY()>t2.getY()) std::swap(t0, t2);
     if (t1.getY()>t2.getY()) std::swap(t1, t2);
+
     int total_height = t2.getY() - t0.getY();
 
     for (int i = 0; i < total_height; i++) {
@@ -152,6 +124,11 @@ void Controller::polygonOnPixmap(ColoredPolygon& plgn){
         for (int j=A.getX(); j<=B.getX(); j++) {
             float phi = B.getX()==A.getX() ? 1. : (float)(j-A.getX())/(float)(B.getX()-A.getX());
             Point P = A + Point(B - A) * phi;
+
+            if(P.getX() < 0 || P.getX() > (*_pixMap)->width() ||
+               P.getY() < 0 || P.getY() > (*_pixMap)->height())
+                continue;
+
             int idx = P.getX() + P.getY()*_areaSize.width();
             if(idx < 0 || idx > (*_pixMap)->width()*(*_pixMap)->height())
                 continue;
@@ -241,8 +218,6 @@ void Controller::uvChanged(int u, int v){
 }
 
 void Controller::uvStepsChanged(int u, int v){
-    _uCount = u;
-    _vCount = v;
     (*_shape)->setStepCounts(u, v);
     refreshPoints();
     _mainWindow.updateDrawingArea();
@@ -260,5 +235,3 @@ QImage* Controller::getPixmap(){
 
 Controller::~Controller(){
 }
-
-
