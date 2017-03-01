@@ -12,19 +12,20 @@ class Migration : public Shape
         Point current_;
         Point vectorOfMove_;
     };
+    std::vector<Point> testPoint;
     unsigned remainingSteps_;
     void computeMigrations(int);
     void func(){}
     std::vector<Migrations> migrations_;
 public:
-    std::vector<Point>
-    makePoints(std::function<Point (const Point&)> mapping);
+    std::vector<Point> makePoints( std::function<Point (const Point&)> mapping);
     inline bool isFinished(){ return remainingSteps_ == 0; }
-    inline std::shared_ptr<Shape*> getShapeTo(){ return to_; }
+    inline std::shared_ptr<Shape*> getFinalShape(){ return to_; }
 
     Migration(std::shared_ptr<Shape*> from,
               std::shared_ptr<Shape*> to,
               int stepCount);
+
     void step();
 };
 

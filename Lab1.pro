@@ -18,7 +18,6 @@ SOURCES += main.cpp\
     drawingarea.cpp \
     drawing.cpp \
     transforms.cpp \
-    point.cpp \
     controller.cpp \
     shape.cpp \
     tor.cpp \
@@ -26,13 +25,14 @@ SOURCES += main.cpp\
     toruscurve.cpp \
     ennepersurface.cpp \
     coloredpolygon.cpp \
-    migration.cpp
+    migration.cpp \
+    shell.cpp \
+    lighting.cpp
 
 HEADERS  += mainwindow.h \
     drawingarea.h \
     drawing.h \
     transforms.h \
-    point.h \
     controller.h \
     shape.h \
     tor.h \
@@ -40,6 +40,9 @@ HEADERS  += mainwindow.h \
     toruscurve.h \
     ennepersurface.h \
     coloredpolygon.h \
-    migration.h
+    migration.h \
+    shell.h \
+    point.hpp \
+    lighting.h
 
 FORMS    += mainwindow.ui

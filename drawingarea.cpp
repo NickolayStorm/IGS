@@ -1,7 +1,7 @@
 #include "drawingarea.h"
 #include "drawing.h"
 #include "transforms.h"
-#include "point.h"
+#include "point.hpp"
 #include "controller.h"
 #include <QMouseEvent>
 #include <QDebug>

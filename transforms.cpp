@@ -4,7 +4,7 @@
 #include <boost/numeric/ublas/io.hpp>
 using std::cout;
 using std::endl;
-using namespace boost::numeric::ublas;
+using boost::numeric::ublas::prod;
 
 // Fuck you and your singleton
 #define DO_ONCE(...) { static bool _do_once_ = ([&](){ __VA_ARGS__ }(), true); (void)_do_once_; }

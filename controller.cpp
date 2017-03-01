@@ -3,20 +3,23 @@
 #include "tor.h"
 #include "toruscurve.h"
 #include "ennepersurface.h"
+#include "shell.h"
 #include "migration.h"
 #include <QTimer>
+#include <QAbstractAnimation>
 
 #define ANIMATION_FPS 30
 
-#define ANIMAT_COUNT 48
+#define ANIMAT_COUNT 30
 
 // Fuck you and your singleton
 #define DO_ONCE(...) { static bool _do_once_ = ([&](){ __VA_ARGS__ }(), true); (void)_do_once_; }
 
 Controller* Controller::_self = nullptr;
 Controller::Controller() : QObject(nullptr),
-                           _mainWindow(Qt::red, Qt::white),
-                           _viewer(10, 10, 10)
+                           _mainWindow(Qt::red, Qt::blue),
+                           _viewer(10, 10, 10),
+                           _lightPos(100,200,200)
 {
     _areaSize = _mainWindow.drawingAreaSize();
     Transforms::instance()->refreshMatrix(
@@ -25,6 +28,7 @@ Controller::Controller() : QObject(nullptr),
                 _areaSize.height() / 2
                 );
 
+    _shapes.insert(QString("Shell")          , []{ return std::move(std::make_shared<Shape*>(new Shell())); }          );
     _shapes.insert(QString("Torus")          , []{ return std::move(std::make_shared<Shape*>(new Tor())); }            );
     _shapes.insert(QString("Torus curve")    , []{ return std::move(std::make_shared<Shape*>(new TorusCurve())); }     );
     _shapes.insert(QString("Enneper Surface"), []{ return std::move(std::make_shared<Shape*>(new EnneperSurface())); } );
@@ -34,6 +38,7 @@ Controller::Controller() : QObject(nullptr),
     // We would have been the unrepresentative order of elements
     // And we are have to use some dificult and boring funcs, so:
     auto initList = QStringList{
+            "Shell",
             "Torus",
             "Torus curve",
             "Enneper Surface"
@@ -42,8 +47,8 @@ Controller::Controller() : QObject(nullptr),
 
     _plgns.reserve(400);
     _frontColor = Qt::red;
-    _backColor = Qt::white;
-    _isPainted = false;
+    _backColor = Qt::blue;
+    _lightColor = Qt::white;
 
     _pixMap = std::make_unique<QImage*>(new QImage(_areaSize, QImage::Format_RGB32));
 
@@ -58,20 +63,18 @@ Controller::Controller() : QObject(nullptr),
     refreshPoints();
     _mainWindow.updateDrawingArea();
 
-    connect(&_mainWindow, SIGNAL( colorsChanged(QColor,QColor) ),
-            this,           SLOT( colorsChanged(QColor,QColor) ) );
-    connect(&_mainWindow, SIGNAL( isPaintedChanged(bool) ),
-            this,           SLOT( isPaintedChangd(bool))         );
-    connect(&_mainWindow, SIGNAL( uvChanged(int,int) ),
-            this,           SLOT( uvChanged(int,int) )           );
-    connect(&_mainWindow, SIGNAL( figureChanged(QString) ),
-            this,           SLOT( figureChanged(QString))        );
-    connect(&_mainWindow, SIGNAL( uvStepsChanged(int,int) ),
-            this,           SLOT( uvStepsChanged(int,int))       );
-    connect(&_mainWindow, SIGNAL( paramsChanged(int,int) ),
-            this,           SLOT( paramsChanged(int,int))        );
-    connect(&_mainWindow, SIGNAL( viewerPosMoved(float,float) ),
-            this,           SLOT( moveViewer(float,float) )      );
+    connect(&_mainWindow, &MainWindow::colorsChanged,
+        this, &Controller::colorsChanged  );
+    connect(&_mainWindow, &MainWindow::uvChanged,
+        this, &Controller::uvChanged      );
+    connect(&_mainWindow, &MainWindow::figureChanged,
+        this, &Controller::figureChanged  );
+    connect(&_mainWindow, &MainWindow::uvStepsChanged,
+        this, &Controller::uvStepsChanged );
+    connect(&_mainWindow, &MainWindow::paramsChanged,
+        this, &Controller::paramsChanged  );
+    connect(&_mainWindow, &MainWindow::viewerPosMoved,
+        this, &Controller::moveViewer     );
 }
 
 void Controller::refreshPoints(){
@@ -90,6 +93,7 @@ void Controller::refreshPolygonColors(){
         auto color = getPolygonColor(p);
         p.setColor(color);
     }
+//    _plgns[0].setColor(Qt::black);
     refreshPixMap();
 }
 
@@ -178,9 +182,13 @@ QColor Controller::getPolygonColor(Polygon &polygon){
     }else{
         col = _frontColor;
     }
-    int r = col.red() * cos;
-    int g = col.green() * cos;
-    int b = col.blue() * cos;
+//    float lightCos = _lightPos.getCos(polygon.getNormal());
+//    if(lightCos < 0){
+//        lightCos = - lightCos;
+//    }
+    int r = col.red() * cos; // * lightCos;
+    int g = col.green() * cos; // * lightCos;
+    int b = col.blue() * cos; // * lightCos;
     return QColor(r, g, b, 255);
 }
 
@@ -191,21 +199,15 @@ Controller* Controller::instance(){
     return Controller::_self;
 }
 
-void Controller::changeViewerPos(Point newViewer){
-    _viewer = newViewer;
-    // TODO: 200 to real center
-    Transforms::instance()->refreshMatrix(
-                _viewer,
-                _areaSize.width() / 2,
-                _areaSize.height() / 2
-    );
-    refreshPoints();
+void Controller::changeLightPos(int x, int y, int z){
+    _lightPos = Point(x, y, z);
+    refreshPolygonColors();
     _mainWindow.updateDrawingArea();
 }
 
 void Controller::moveViewer(float x, float y){
     Transforms &transforms = *Transforms::instance();
-    // x and y are swapped becouse it is a magic
+    // x and y are swapped because it is a magic
     transforms.rotateX(y);
     transforms.rotateY(x);
     refreshPoints();
@@ -213,15 +215,9 @@ void Controller::moveViewer(float x, float y){
 }
 
 void Controller::colorsChanged(QColor inside, QColor outside){
-    _backColor = outside;
+    _backColor  = outside;
     _frontColor = inside;
     refreshPolygonColors();
-    _mainWindow.updateDrawingArea();
-}
-
-void Controller::isPaintedChangd(bool is){
-    _isPainted = is;
-    refreshPoints();
     _mainWindow.updateDrawingArea();
 }
 
@@ -248,9 +244,9 @@ void Controller::animationStep(){
     Migration* m = dynamic_cast<Migration*>(*_shape);
     m->step();
     if(!m->isFinished()){
-        QTimer::singleShot(1000/ANIMATION_FPS, this, SLOT(animationStep()));
+        QTimer::singleShot(1000/ANIMATION_FPS, this, &Controller::animationStep);
     }else{
-        _shape = m->getShapeTo();
+        _shape = m->getFinalShape();
         setWindowSliders();
         _mainWindow.setEnabled(true);
     }

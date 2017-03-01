@@ -11,7 +11,7 @@ void Tor::func(){
     u *= M_PI / 180;
     v *= M_PI / 180;
     x = (_b * cos(v) + _a) * cos(u);
-    y = (_b * cos(v) + _a) * sin(u);
+    y = -(_b * cos(v) + _a) * sin(u);
     z = _b * sin(v);
 }
 

@@ -2,8 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QColorDialog>
-#include "point.h"
+#include "point.hpp"
 
 namespace Ui {
 class MainWindow;
@@ -31,13 +30,12 @@ signals:
     void figureChanged(QString);
     void viewerPosMoved(float, float);
 public slots:
-    void isPainted(int);
     void changeInsideColor();
     void changeOutsideColor();
     void changeUV();
     void changeParams();
     void changeUVSteps();
-    void changeFigure(QString);
+//    void changeFigure(QString);
     void moveViewerPos(QPoint);
 private:
     Ui::MainWindow *ui;

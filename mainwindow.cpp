@@ -1,6 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
+#include <QColorDialog>
+#include <QComboBox>
+
 
 MainWindow::MainWindow(QColor inside, QColor outside, QWidget *parent) :
     QMainWindow(parent),
@@ -27,15 +30,15 @@ MainWindow::MainWindow(QColor inside, QColor outside, QWidget *parent) :
     connect(ui->sliderParam2, SIGNAL(valueChanged(int)), this, SLOT(changeParams()));
 
     // Figure choose
-    connect(ui->comboBoxFigure, SIGNAL(currentIndexChanged(QString)),
-            this, SLOT(changeFigure(QString)));
+    connect(ui->comboBoxFigure, static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged),
+            [this](const QString& name){
+                emit figureChanged(name);
+            }
+    );
 
     // Colors
     connect(ui->insideColorButton, SIGNAL(clicked()), this, SLOT(changeInsideColor()));
     connect(ui->outsideColorButton, SIGNAL(clicked()), this, SLOT(changeOutsideColor()));
-
-    // Check boxes
-    connect(ui->isPainted, SIGNAL(stateChanged(int)), this, SLOT(isPainted(int)));
 
     // Move viewer position on mouse
     connect(ui->drawingArea, SIGNAL(moveViewerPos(QPoint)), this, SLOT(moveViewerPos(QPoint)));
@@ -96,13 +99,9 @@ void MainWindow::updateColorWidget(QWidget *w, QColor col){
     w->setPalette(Pal);
 }
 
-void MainWindow::changeFigure(QString name){
-    emit figureChanged(name);
-}
-
-void MainWindow::isPainted(int is){
-    emit isPaintedChanged(is);
-}
+//void MainWindow::changeFigure(QString name){
+//    emit figureChanged(name);
+//}
 
 void MainWindow::updateDrawingArea(){
     ui->drawingArea->update();

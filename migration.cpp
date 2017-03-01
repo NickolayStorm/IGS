@@ -5,44 +5,53 @@ Migration::Migration(std::shared_ptr<Shape*> from,
                      int stepCount){
     from_ = from;
     to_ = to;
-    if ( (*from)->getUVCounts() != (*to)->getUVCounts())
+    auto uv = (*from)->getUVCounts();
+    if ( uv != (*to)->getUVCounts())
     {
-        std::terminate();
+        (*to)->setStepCounts(uv.first, uv.second);
     }
-    uCount = (*from)->getUVCounts().first;
-    vCount = (*from)->getUVCounts().second;
+    uCount = uv.first;
+    vCount = uv.second;
     remainingSteps_ = stepCount;
     computeMigrations(stepCount);
 }
 
 void Migration::computeMigrations(int stepCount){
-    // Points without any mapping
+
+    // We need points without any mapping
     auto identity = [](const Point &arg){
         return arg;
     };
 
     auto pointsFrom = (*from_)->makePoints(identity);
     auto pointsTo   = (*to_)  ->makePoints(identity);
+
     migrations_.reserve(pointsFrom.size());
 
     for(Point &p : pointsFrom){
-        float min_distance = std::numeric_limits<float>::max();
+        float min_distance = 1488228228;
         auto iter = pointsTo.begin();
         auto min_pos = iter;
-        for(; iter != pointsTo.end(); ++ iter){
+        for(; iter != pointsTo.end(); ++iter){
             Point& oth = *iter;
+//#include <iostream>
             float distance = p.distance(oth);
+//            std::cout << distance << std::endl;
             if(distance < min_distance){
                 min_pos = iter;
                 min_distance = distance;
             }
         }
-        Point moveVec = (*iter - p) / stepCount;
+
+        Point moveVec = (*iter - p) / ((float)stepCount * 1.005);
+
         pointsTo.erase(iter);
+
         Migrations m = {
                  p,
                  moveVec
         };
+
         migrations_.push_back(m);
     }
 }
@@ -64,5 +73,5 @@ Migration::makePoints(std::function<Point (const Point&)> mapping){
                    points.begin(),
                    [&](Migrations& m){ return mapping(m.current_); });
 
-    return points;
+    return std::move(points);
 }

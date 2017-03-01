@@ -1,8 +1,8 @@
 #ifndef TRANSFORMS_H
 #define TRANSFORMS_H
-#include "point.h"
+#include "point.hpp"
 #include <QPoint>
-using namespace boost::numeric::ublas;
+using boost::numeric::ublas::matrix;
 class Transforms
 {
 private:

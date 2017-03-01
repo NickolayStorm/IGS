@@ -2,7 +2,7 @@
 #define SHAPE_H
 #include <utility>
 #include <functional>
-#include "point.h"
+#include "point.hpp"
 #include "coloredpolygon.h"
 
 class Shape
